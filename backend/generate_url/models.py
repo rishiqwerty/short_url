@@ -3,9 +3,9 @@ from django.db import models
 
 # Create your models here.
 class Url(models.Model):
-    url = models.CharField(unique=True)
-    status = models.BooleanField(default=True, null=True, blank=True)
-    short_url_pattern = models.CharField(unique=True)
+    url = models.CharField(unique=True, max_length=500,null=False, blank=False)
+    status = models.BooleanField(default=True, null=False, blank=False)
+    short_url_pattern = models.CharField(unique=True, null=False, blank=False, max_length=200)
     creation_date = models.DateTimeField(auto_now=True, auto_created=True)
     modification_date = models.DateTimeField(auto_now=True, auto_created=True)
 
