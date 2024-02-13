@@ -1,15 +1,33 @@
 from django.shortcuts import render
-import base64
+from rest_framework.views import APIView
+from generate_url.serializers import UrlSerializer
+from rest_framework.response import Response
+from rest_framework import status
+from .utils import generate_short_url_pattern
+from rest_framework.decorators import api_view
+from .models import Url
+
 
 # Create your views here.
-def generate_base64_url(url):
-    # Convert the URL to bytes
-    url_bytes = url.encode('utf-8')
+class ShortURL(APIView):
+    # def get(request):
+    #     pass
 
-    # Base64 encode the URL bytes
-    base64_encoded = base64.urlsafe_b64encode(url_bytes)
+    def post(self, request):
+        data = request.data
+        data["short_url_pattern"] = generate_short_url_pattern(data.get("url"))
 
-    # Decode the bytes to a UTF-8 string
-    base64_string = base64_encoded.decode('utf-8')
+        serializer = UrlSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    return base64_string
+@api_view(['GET'])
+def redirect_to_website(request, short_url):
+    try:
+        url_info=Url.objects.get(short_url_pattern=short_url)
+        long_url= url_info.url
+    except:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    return Response(status=302, headers={'Location': f'https://{long_url}'})
