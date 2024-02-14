@@ -43,4 +43,5 @@ def redirect_to_website(request, short_url):
         long_url = url_info.url
     except:
         return Response(status=status.HTTP_404_NOT_FOUND)
-    return Response(status=302, headers={"Location": f"https://{long_url}"})
+    # return Response(status=302, headers={"Location": f"https://{long_url}"})
+    return Response(status=200, data={"url": f"https://{long_url}"})
