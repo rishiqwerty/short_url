@@ -11,13 +11,13 @@ function ShortUrl() {
         try {
             setIsLoading(true);
             setError(null);
-    
-            const response = await axios.post("http://localhost:8001/generate_url/short-url/", {
+
+            const response = await axios.post("/generate_url/short-url/", {
                 'url': longUrl
             });
-    
+
             console.log(response);
-            setShortUrl(response.data.short_url_pattern);
+            setShortUrl(window.location.href + response.data.short_url_pattern);
         } catch (error) {
             console.log(error);
             setError(error);
@@ -27,14 +27,57 @@ function ShortUrl() {
     };
 
     const handleChange = async (e) => {
-        const {name,value} = e.target;
+        const { name, value } = e.target;
         setUrl(value)
     }
+    const handleCopyClick = async () => {
+        try {
+            await navigator.clipboard.writeText(shortUrl);
+            // Optionally, you can provide feedback to the user that the text has been copied
+            alert('Text copied to clipboard!');
+        } catch (err) {
+            console.error('Unable to copy text to clipboard', err);
+        }
+    };
+
     return (
         <div className="container">
-            <input onChange={handleChange} />
-            <button disabled={loading} onClick={generateShortUrl}>Shorten URL</button>
-            {shortUrl}
+            <div className="input-group mb-3 p-4">
+                <input
+                    type="text"
+                    className="form-control"
+                    onChange={handleChange}
+                />
+                <button
+                    type="button"
+                    className="btn btn-dark"
+                    disabled={loading}
+                    onClick={generateShortUrl}
+                >
+                    Shorten URL
+                </button>
+                {loading ? <p>Loading...</p> : <></>}
+            </div>
+
+            <div className='container'>
+                <p className="text-center">
+                    {shortUrl ? <b>Shortened URL: </b> : ''} <a className='text-danger' href={shortUrl ? shortUrl : ''}>{shortUrl}</a>
+                </p>
+                <div className='d-flex justify-content-center align-items-center'>
+
+                    {shortUrl ?
+                        <button
+                            type="button"
+                            className="btn btn-danger"
+                            disabled={shortUrl.length === 0 ? true : false}
+                            onClick={handleCopyClick}
+                        >
+                            Copy
+                        </button> : <></>
+                    }
+                </div>
+
+            </div>
         </div>
     );
 }
