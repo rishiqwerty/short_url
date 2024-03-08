@@ -16,8 +16,16 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.views.generic import TemplateView
+from generate_url.views import redirect_to_website
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('generate_url/', include('generate_url.urls')),
+    # path('', TemplateView.as_view(template_name='index.html')),
+    path('<str:short_url>', redirect_to_website)
+]
+urlpatterns += [
+    path('', TemplateView.as_view(template_name='index.html')),
+
 ]
