@@ -8,7 +8,7 @@ pip install -r backend/requirements.txt
 # Changing directory
 cd frontend/
 npm i
-npm run build
+CI=false npm run build
 
 cd ../backend
 # Apply any outstanding database migrations
