@@ -7,6 +7,7 @@ pip install -r backend/requirements.txt
 
 # Changing directory
 cd frontend/
+npm i
 npm run build
 
 cd ../backend
