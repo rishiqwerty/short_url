@@ -12,4 +12,4 @@ CI=false npm run build
 
 cd ../backend
 # Apply any outstanding database migrations
-python manage.py runserver
+# python manage.py runserver
