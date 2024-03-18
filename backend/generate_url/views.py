@@ -28,7 +28,7 @@ class ShortURL(APIView):
             # Creating new short url if not already created
             serializer = UrlSerializer(data=data)
             if serializer.is_valid():
-                serializer.save()
+                existing_url = serializer.save()
         try:
             # This will be for custom patterns created by users
             if custom_data.get("short_url_pattern"):
