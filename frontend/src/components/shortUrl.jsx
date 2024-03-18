@@ -3,8 +3,11 @@ import React, { useState } from 'react';
 
 function ShortUrl() {
     const [longUrl, setUrl] = useState('')
+    const [customPattern, setCustom] = useState('')
     const [shortUrl, setShortUrl] = useState('')
     const [loading, setIsLoading] = useState(false)
+    const [openCustomInput, setIsCustomInput] = useState(false)
+
     const [error, setError] = useState('')
 
     const generateShortUrl = async () => {
@@ -13,11 +16,16 @@ function ShortUrl() {
             setError(null);
 
             const response = await axios.post("/generate_url/short-url/", {
-                'url': longUrl
+                'url': longUrl,
+                'short_url_pattern': customPattern
             });
 
-            console.log(response);
-            setShortUrl(window.location.href + response.data.short_url_pattern);
+            setCustom('')
+            setShortUrl(window.location.href + (response.data.short_url_pattern ? response.data.short_url_pattern : response.data.custom_pattern));
+
+            if (response.data.message) {
+                setError(response.data.message)
+            }
         } catch (error) {
             console.log(error);
             setError(error);
@@ -28,12 +36,16 @@ function ShortUrl() {
 
     const handleChange = async (e) => {
         const { name, value } = e.target;
-        setUrl(value)
+        if (name === 'custom') {
+            setCustom(value)
+        }
+        else {
+            setUrl(value)
+        }
     }
     const handleCopyClick = async () => {
         try {
             await navigator.clipboard.writeText(shortUrl);
-            // Optionally, you can provide feedback to the user that the text has been copied
             alert('Text copied to clipboard!');
         } catch (err) {
             console.error('Unable to copy text to clipboard', err);
@@ -46,12 +58,30 @@ function ShortUrl() {
                 <input
                     type="text"
                     className="form-control"
+                    name='url'
+                    placeholder='youtube.com/something-something'
                     onChange={handleChange}
+                />
+                <input
+                    type="text"
+                    className="form-control ms-2"
+                    name='custom'
+                    onChange={handleChange}
+                    hidden={!openCustomInput}
+                    placeholder='Enter pattern'
                 />
                 <button
                     type="button"
+                    className="btn btn-danger ms-2 me-2 "
+                    hidden={openCustomInput}
+                    onClick={() => setIsCustomInput(true)}
+                >
+                    Custom Pattern
+                </button>
+                <button
+                    type="button"
                     className="btn btn-dark"
-                    disabled={loading}
+                    disabled={loading || !longUrl}
                     onClick={generateShortUrl}
                 >
                     Shorten URL
@@ -59,7 +89,11 @@ function ShortUrl() {
                 {loading ? <p>Loading...</p> : <></>}
             </div>
 
+
             <div className='container'>
+                <p className="text-center">
+                    {error}
+                </p>
                 <p className="text-center">
                     {shortUrl ? <b>Shortened URL: </b> : ''} <a className='text-danger' href={shortUrl ? shortUrl : ''}>{shortUrl}</a>
                 </p>
