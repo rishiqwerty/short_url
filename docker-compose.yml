@@ -1,0 +1,23 @@
+version: '3'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: short_url/Dockerfile
+    command: bash -c "gunicorn backend.wsgi"
+    volumes:
+      - ./:/usr/src/app
+    ports:
+      - "8000:8000"
+    environment:
+      - SECRET_KEY='django-insecure-i1ln@7mfe9%xvf=dohr8m7@1_je11!z)x1q+o*s!+u)w^txj!$'
+      - DEBUG=True
+
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
