@@ -13,6 +13,23 @@ services:
     environment:
       - SECRET_KEY='django-insecure-i1ln@7mfe9%xvf=dohr8m7@1_je11!z)x1q+o*s!+u)w^txj!$'
       - DEBUG=True
+  redis:
+    image: "redis:latest"
+    ports:
+      - "6379:6379"
+
+  celery:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    command: celery -A backend worker -l INFO
+    volumes:
+      - ./:/usr/src/app/
+    environment:
+      - DEBUG=1
+    depends_on:
+      - backend
+      - redis
 
   frontend:
     build:
