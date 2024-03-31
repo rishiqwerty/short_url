@@ -6,6 +6,7 @@ from rest_framework import status
 from .utils import generate_short_url_pattern
 from rest_framework.decorators import api_view
 from .models import Url, CustomUrl
+from .tasks import update_some
 
 
 # Create your views here.
@@ -22,7 +23,7 @@ class ShortURL(APIView):
         try:
             data["short_url_pattern"] = generate_short_url_pattern(data.get("url"))
             # If existing url then return that data
-            existing_url = Url.objects.get(url=data["url"].replace("https://",'',1))
+            existing_url = Url.objects.get(url=data["url"].replace("https://", "", 1))
             serializer = UrlSerializer(existing_url)
         except:
             # Creating new short url if not already created
@@ -71,10 +72,15 @@ def redirect_to_website(request, short_url):
     try:
         url_info = Url.objects.get(short_url_pattern=short_url)
         long_url = url_info.url
-        return redirect("https://"+long_url)
-    except:
+        update_some.delay(url_info)
+        # return Response(status=200, data={"url": f"https://{long_url}"})
+
+        return redirect("https://" + long_url)
+    except Exception as e:
+        # print(e)
         try:
             long_url = CustomUrl.objects.get(custom_pattern=short_url).url.url
+            update_some.delay(url_info)
         except Exception as e:
             return Response(status=status.HTTP_404_NOT_FOUND)
     # return Response(status=302, headers={"Location": f"https://{long_url}"})
