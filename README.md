@@ -1,6 +1,8 @@
 # Url Shortner
 Convert your long urls to short simple urls.
 
+![](./short_url_demo.gif)
+
 ### Features
 - Generate short urls in just two tap, no login required
 
